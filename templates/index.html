@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}文档脱敏工具{% endblock %}
+
+{% block content %}
+<section class="hero-card p-4 p-lg-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="badge text-bg-light border mb-3">Flask + DOC/DOCX/PDF</span>
+            <h1 class="display-6 fw-bold mb-3">轻量级 Web 文档脱敏工具</h1>
+            <p class="muted-text mb-0">
+                上传 Word 或 PDF 文件，按需勾选敏感字段，系统会自动执行脱敏并生成可下载的新文件。
+                对 Word 会尽量保留段落与样式结构，对 PDF 会在原页面坐标上执行遮盖替换，尽量保持原排版。
+            </p>
+        </div>
+        <div class="col-lg-4">
+            <div class="panel-card p-4">
+                <div class="section-title mb-3">支持能力</div>
+                <ul class="tips-list">
+                    <li>单文件上传</li>
+                    <li>默认字段一键脱敏</li>
+                    <li>自定义关键词脱敏</li>
+                    <li>处理后直接下载</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="panel-card p-4 p-lg-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-4">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-2">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="post" enctype="multipart/form-data" class="row g-4">
+        <div class="col-12">
+            <div class="upload-box p-4">
+                <label for="file" class="form-label fw-semibold">上传文件</label>
+                <input class="form-control" type="file" id="file" name="file" accept=".doc,.docx,.pdf" required>
+                <div class="form-text">支持 `.doc`、`.docx` 和 `.pdf`。其中 `.doc` 会先自动转换为 `.docx` 再脱敏，扫描版 PDF 的识别效果会受限。</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="section-title mb-3">默认脱敏字段</div>
+            <div class="field-grid">
+                {% for field in fields %}
+                    <label class="field-item form-check">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="field_{{ field.key }}"
+                            {% if field.key in selected_fields %}checked{% endif %}
+                        >
+                        <span class="form-check-label ms-2">{{ field.label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="section-title mb-3">自定义敏感关键字</div>
+            <div class="mb-3 form-check">
+                <input class="form-check-input" type="checkbox" id="enable_custom" name="enable_custom" {% if enable_custom %}checked{% endif %}>
+                <label class="form-check-label" for="enable_custom">启用自定义关键字脱敏</label>
+            </div>
+            <textarea
+                class="form-control"
+                id="custom_keywords"
+                name="custom_keywords"
+                rows="4"
+                placeholder="可输入多个关键字，使用换行、英文逗号、中文逗号或分号分隔"
+            >{{ custom_keywords_text }}</textarea>
+        </div>
+
+        <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
+            <button type="submit" class="btn btn-brand btn-lg text-white px-4">开始脱敏</button>
+            <span class="muted-text">默认会勾选所有内置字段。</span>
+        </div>
+    </form>
+
+    {% if result_filename %}
+        <hr class="my-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="section-title">处理结果</div>
+                <div class="muted-text">文件已生成，点击右侧按钮下载脱敏后的新文件。</div>
+            </div>
+            <a class="btn btn-outline-success btn-lg" href="{{ url_for('download_file', filename=result_filename) }}">
+                下载脱敏文件
+            </a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
