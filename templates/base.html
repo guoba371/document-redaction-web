@@ -96,6 +96,26 @@
             border-radius: 18px;
             background: linear-gradient(180deg, #fcfeff 0%, #f3f8fb 100%);
         }
+
+        .processing-panel {
+            display: none;
+            border: 1px solid rgba(15, 118, 110, 0.22);
+            border-radius: 16px;
+            background: #f1fbf9;
+        }
+
+        .processing-panel.is-visible {
+            display: block;
+        }
+
+        .processing-panel .progress {
+            height: 10px;
+            background: #d9efeb;
+        }
+
+        .processing-panel .progress-bar {
+            background-color: var(--brand);
+        }
     </style>
 </head>
 <body>

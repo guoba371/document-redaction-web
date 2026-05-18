@@ -38,7 +38,7 @@
         {% endif %}
     {% endwith %}
 
-    <form method="post" enctype="multipart/form-data" class="row g-4">
+    <form method="post" enctype="multipart/form-data" class="row g-4" id="redaction-form">
         <div class="col-12">
             <div class="upload-box p-4">
                 <label for="file" class="form-label fw-semibold">上传文件</label>
@@ -80,8 +80,30 @@
         </div>
 
         <div class="col-12 d-flex flex-wrap gap-3 align-items-center">
-            <button type="submit" class="btn btn-brand btn-lg text-white px-4">开始脱敏</button>
+            <button type="submit" class="btn btn-brand btn-lg text-white px-4" id="submit-button">
+                <span class="submit-label">开始脱敏</span>
+                <span class="submit-loading d-none">
+                    <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                    脱敏中
+                </span>
+            </button>
             <span class="muted-text">默认会勾选所有内置字段。</span>
+        </div>
+
+        <div class="col-12">
+            <div class="processing-panel p-3" id="processing-panel" role="status" aria-live="polite">
+                <div class="d-flex justify-content-between gap-3 mb-2">
+                    <div class="fw-semibold">正在脱敏文档</div>
+                    <div class="muted-text">请稍候</div>
+                </div>
+                <div class="progress" aria-label="文档脱敏进度">
+                    <div
+                        class="progress-bar progress-bar-striped progress-bar-animated"
+                        style="width: 100%"
+                    ></div>
+                </div>
+                <div class="form-text mt-2">文件较大或 PDF 内容较多时可能需要更长时间，请不要重复提交。</div>
+            </div>
         </div>
     </form>
 
@@ -89,7 +111,7 @@
         <hr class="my-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
-                <div class="section-title">处理结果</div>
+                <div class="section-title">脱敏完成</div>
                 <div class="muted-text">文件已生成，点击右侧按钮下载脱敏后的新文件。</div>
             </div>
             <a class="btn btn-outline-success btn-lg" href="{{ url_for('download_file', filename=result_filename) }}">
@@ -98,4 +120,19 @@
         </div>
     {% endif %}
 </section>
+
+<script>
+    const form = document.getElementById("redaction-form");
+    const submitButton = document.getElementById("submit-button");
+    const submitLabel = submitButton.querySelector(".submit-label");
+    const submitLoading = submitButton.querySelector(".submit-loading");
+    const processingPanel = document.getElementById("processing-panel");
+
+    form.addEventListener("submit", () => {
+        submitButton.disabled = true;
+        submitLabel.classList.add("d-none");
+        submitLoading.classList.remove("d-none");
+        processingPanel.classList.add("is-visible");
+    });
+</script>
 {% endblock %}
