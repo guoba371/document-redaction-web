@@ -26,6 +26,13 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in Config.ALLOWED_EXTENSIONS
 
 
+def build_upload_name(original_filename: str) -> str:
+    source = Path(original_filename)
+    stem = secure_filename(source.stem) or "document"
+    suffix = source.suffix.lower()
+    return f"{uuid4().hex[:8]}_{stem}{suffix}"
+
+
 def build_output_name(original_filename: str) -> str:
     source = Path(original_filename)
     stem = secure_filename(source.stem) or "document"
@@ -56,8 +63,7 @@ def index():
         elif not allowed_file(uploaded_file.filename):
             flash("文件格式不支持，仅支持 .doc、.docx 和 .pdf。", "danger")
         else:
-            safe_name = secure_filename(uploaded_file.filename)
-            upload_name = f"{uuid4().hex[:8]}_{safe_name}"
+            upload_name = build_upload_name(uploaded_file.filename)
             upload_path = Config.UPLOAD_FOLDER / upload_name
             output_name = build_output_name(uploaded_file.filename)
             output_path = Config.PROCESSED_FOLDER / output_name
